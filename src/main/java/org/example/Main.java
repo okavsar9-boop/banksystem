@@ -5,11 +5,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String url = "jdbs:postgresql://localhost:5432/MyFirstApp";
+        String url = "jdbc:postgresql://localhost:5432/MyFirstApp";
 
         // Let's start with the entry point
         Scanner scanner = new Scanner(System.in);
-        while(true){
+        while (true) {
 
             System.out.println("Choose One Option :\n");
             System.out.println("1 : Register User ");
@@ -19,8 +19,8 @@ public class Main {
             // We check the user's intended option here
 
             int option = scanner.nextInt();
-            switch(option){
-                case 1 :
+            switch (option) {
+                case 1:
 
                     System.out.println("Enter your name :");
                     String name = scanner.nextLine();
@@ -36,10 +36,14 @@ public class Main {
 
                     int card = scanner.nextInt();
 
-                    switch(card){
-                        case 1 : System.out.println("You chose National card"); break;
-                        case 2 : System.out.println("You chose Visa card"); break;
-                        default :
+                    switch (card) {
+                        case 1:
+                            System.out.println("You chose National card");
+                            break;
+                        case 2:
+                            System.out.println("You chose Visa card");
+                            break;
+                        default:
                             System.out.println("Invalid selection !");
                             break;
                     }
@@ -47,31 +51,32 @@ public class Main {
                     // Here If user chooses the option 2 that means they are already registered
                     // We have to just operate the another action
 
-                case 2 :
+                case 2:
                     System.out.println("Enter your User ID number :");
                     int id_number = scanner.nextInt();
+
+                    // Here we are going to check if the ID is valid or not
+
+
                     System.out.println("How much Money you want to deposit ? :");
                     double money = scanner.nextDouble();
-                    if (money > 0 ){
+                    if (money > 0) {
 
                     }
-
                     break;
-                case 3 :
-                    System.out.println("Enter your User ID number :");
-                    int id_number2 = scanner.nextInt();
-                    System.out.println("How much money you want to take out ? :");
-                    double money_2 = scanner.nextDouble();
-                    if ( money_2 > withdrew  ) {
 
-                    }
+                // The user chose exit section ,so we terminate all things !
 
-                        case 4:
-                    System.out.println("Exit");
+                case 3:
+                    System.out.println("Exit chosen");
+                    System.exit(0);
+                    break;
+
+                    // If user enters the invalid number or other than from , 1 - 3 it will be show an error
+                default:
+                    System.out.println("Invalid choice");
+                    break;
             }
-            default :
-                System.out.println("Invalid choice");
-                break;
         }
     }
 }
