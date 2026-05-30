@@ -1,0 +1,67 @@
+package org.example;
+
+import java.sql.SQLOutput;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        String url = "jdbs:postgresql://localhost:5432/MyFirstApp";
+
+        // Let's start with the entry point
+        Scanner scanner = new Scanner(System.in);
+        while(true){
+
+            System.out.println("Choose One Option :\n");
+            System.out.println("1 : Register User ");
+            System.out.println("2 : Log In  ");
+            System.out.println("3 : Exit ");
+
+            //
+
+            int option = scanner.nextInt();
+            switch(option){
+                case 1 :
+                    System.out.println("Enter your name :");
+                    String name = scanner.nextLine();
+                    System.out.println("Enter your surname :");
+                    String surname = scanner.nextLine();
+                    System.out.println("Select card type:");
+                    System.out.println("1: National Card");
+                    System.out.println("2: Visa Card");
+                    int card = scanner.nextInt();
+
+                    switch(card){
+                        case 1 : System.out.println("You chose National card"); break;
+                        case 2 : System.out.println("You chose Visa card"); break;
+                        default :
+                            System.out.println("Invalid selection !");
+                            break;
+                    }
+                case 2 :
+                    System.out.println("Enter your User ID number :");
+                    int id_number = scanner.nextInt();
+                    System.out.println("How much Money you want to deposit ? :");
+                    double money = scanner.nextDouble();
+                    if (money > 0 ){
+
+                    }
+
+                    break;
+                case 3 :
+                    System.out.println("Enter your User ID number :");
+                    int id_number2 = scanner.nextInt();
+                    System.out.println("How much money you want to take out ? :");
+                    double money_2 = scanner.nextDouble();
+                    if ( money_2 > withdrew  ) {
+
+                    }
+
+                        case 4:
+                    System.out.println("Exit");
+            }
+            default :
+                System.out.println("Invalid choice");
+                break;
+        }
+    }
+}
