@@ -16,18 +16,24 @@ public class Main {
             System.out.println("2 : Log In  ");
             System.out.println("3 : Exit ");
 
-            //
+            // We check the user's intended option here
 
             int option = scanner.nextInt();
             switch(option){
                 case 1 :
+
                     System.out.println("Enter your name :");
                     String name = scanner.nextLine();
+
                     System.out.println("Enter your surname :");
                     String surname = scanner.nextLine();
-                    System.out.println("Select card type:");
+
+                    System.out.println("Select your card type:");
                     System.out.println("1: National Card");
                     System.out.println("2: Visa Card");
+
+                    // Here user should enter their card type because each card type has different actions
+
                     int card = scanner.nextInt();
 
                     switch(card){
@@ -37,6 +43,10 @@ public class Main {
                             System.out.println("Invalid selection !");
                             break;
                     }
+
+                    // Here If user chooses the option 2 that means they are already registered
+                    // We have to just operate the another action
+
                 case 2 :
                     System.out.println("Enter your User ID number :");
                     int id_number = scanner.nextInt();
