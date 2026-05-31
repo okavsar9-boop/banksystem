@@ -27,41 +27,51 @@ public class Main {
                 switch (option) {
                     case 1:
 
-                        System.out.println("Enter your name :");
+                        System.out.println("\nEnter your name :");
                         String name = scanner.next();
 
                         System.out.println("Enter your surname :");
                         String surname = scanner.next();
-                        System.out.println(" Entered full name : " + name + " "+ surname);
-                        System.out.println("Select your desired card type:");
+                        System.out.println("\nEntered full name : " + (name.toUpperCase() + " "+ surname.toUpperCase().trim()));
+                        System.out.println("\nSelect your desired card type:");
                         System.out.println("1: National Card");
                         System.out.println("2: Visa Card");
 
                         // Here user should enter their card type because each card type has different actions
 
                         int card = scanner.nextInt();
-
+                        while (card != 1 && card != 2 ){
+                            System.out.println("Invalid selection! Try again");
+                            card = scanner.nextInt();
+                    }
+                        String cardType = "";
                         switch (card) {
                             case 1:
+                                cardType = "NATIONAL_CARD";
                                 System.out.println("You chose National card");
                                 break;
                             case 2:
+                                cardType = "VISA";
                                 System.out.println("You chose Visa card");
-                                break;
-                            default:
-                                System.out.println("Invalid selection !");
                                 break;
                         }
 
+
                         // lets put new user info into database
 
-                        PreparedStatement ps = connection.prepareStatement("Insert into users(name,surname,card_type)" +
-                                "values (?,?,?)");
+                        PreparedStatement ps = connection.prepareStatement("Insert into " +
+                                "users(name,surname,card_type)" +
+                                "values (?,?,?::acc_enum)");
 
-                        ps.setString(1,name);
-                        ps.setString(2,surname);
-                        ps.setInt(3,card);
-                        int rs  = ps.executeUpdate();
+                        ps.setString(1, name);
+                        ps.setString(2, surname);
+                        ps.setString(3, cardType);
+                        int rs = ps.executeUpdate();
+                        if (rs == 1 ) {
+                            System.out.println("Registration was succeed ✅");
+                        }else {
+                            System.out.println("Registration failed.❌ Please try again.");
+                        }
 
 
 
@@ -78,9 +88,10 @@ public class Main {
                                 System.out.println("How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
                                 if (deposit > 0 ){
-                                    PreparedStatement depositing = connection.prepareCall("Update Action set ? where user_id = id_number");
+                                    PreparedStatement depositing = connection.prepareCall("Update Action " +
+                                            "set ? where user_id = id_number");
                                     depositing.setDouble(1,deposit);
-                                    ResultSet rs = depositing.executeUpdate();
+                                    int rs2 = depositing.executeUpdate();
 
 
                                 }
@@ -95,11 +106,12 @@ public class Main {
 
                         // Here we are going to check if the ID is valid or not
 
-                        PreparedStatement checkTheId = connection.prepareStatement("Select * from users where user_id = ?");
+                        PreparedStatement checkTheId = connection.prepareStatement("Select * from users " +
+                                "where user_id = ?");
                         checkTheId.setInt(1,id_number);
-                        ResultSet rs = checkTheId.executeQuery();
+                        ResultSet rs3 = checkTheId.executeQuery();
 
-                        if (rs.next()){
+                        if (rs3.next()){
                             System.out.println("How much Money you want to deposit ? :");
                             double money = scanner.nextDouble();
 
@@ -122,7 +134,7 @@ public class Main {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Connection Failed");
+            System.out.println("Connection Failed : " + e.getMessage());
         }
     }
 }
