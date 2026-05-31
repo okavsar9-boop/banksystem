@@ -1,25 +1,25 @@
 package org.example;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 
-        try (Connection connnection = DatabaseConnection.getConnection()) {
+        try (Connection connection = DatabaseConnection.getConnection()) {
 
             // Let's start with the entry point
+
             Scanner scanner = new Scanner(System.in);
             boolean running = true;
-            int currentSessionUserId = 0;
 
             while (running) {
 
-                System.out.println("Choose One Option :\n");
-                System.out.println("1 : Register User ");
-                System.out.println("2 : Log In  ");
-                System.out.println("3 : Exit ");
+                System.out.println("\n----------- Welcome To Our Bank --------------");
+                System.out.println("\nChoose One Option : ");
+                System.out.println("\n1 - Register User ");
+                System.out.println("2 - Log In  ");
+                System.out.println("3 - Exit ");
+                System.out.println("\n-----------------------------------------------");
 
                 // We check the user's intended option here
 
@@ -28,11 +28,11 @@ public class Main {
                     case 1:
 
                         System.out.println("Enter your name :");
-                        String name = scanner.nextLine();
+                        String name = scanner.next();
 
                         System.out.println("Enter your surname :");
-                        String surname = scanner.nextLine();
-
+                        String surname = scanner.next();
+                        System.out.println(" Entered full name : " + name + surname);
                         System.out.println("Select your card type:");
                         System.out.println("1: National Card");
                         System.out.println("2: Visa Card");
@@ -62,10 +62,17 @@ public class Main {
 
                         // Here we are going to check if the ID is valid or not
 
+                        PreparedStatement checkTheId = connection.prepareStatement("Select * from users where user_id = ?");
+                        checkTheId.setInt(1,id_number);
+                        ResultSet rs = checkTheId.executeQuery();
 
-                        System.out.println("How much Money you want to deposit ? :");
-                        double money = scanner.nextDouble();
+                        if (rs.next()){
+                            System.out.println("How much Money you want to deposit ? :");
+                            double money = scanner.nextDouble();
 
+                        }else {
+                            System.out.println("Your ID is invalid! Move on to the 'REGISTER' page ");
+                        }
                         break;
 
                     // The user chose exit section ,so we terminate all things !
@@ -82,7 +89,7 @@ public class Main {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Connection Failed : " + e.getMessage());
+            System.out.println("Connection Failed");
         }
     }
 }
