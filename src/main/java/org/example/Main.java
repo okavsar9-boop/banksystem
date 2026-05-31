@@ -7,12 +7,8 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        String url = "jdbc:postgresql://localhost:5432/MyFirstApp";
-        String user = "postgres";
-        String password = "ominakavsar11";
+        try (Connection connnection = DatabaseConnection.getConnection()) {
 
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            System.out.println("Success : Secure Connection stablished with PostgreSql");
             // Let's start with the entry point
             Scanner scanner = new Scanner(System.in);
             boolean running = true;
@@ -85,10 +81,8 @@ public class Main {
                         break;
                 }
             }
-        }
-        catch (SQLException e ){
-            System.out.println("Error Occured : Something went wrong with the database connection");
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Connection Failed : " + e.getMessage());
         }
     }
 }
