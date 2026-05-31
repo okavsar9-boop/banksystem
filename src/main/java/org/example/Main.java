@@ -14,7 +14,7 @@ public class Main {
 
             while (running) {
 
-                System.out.println("\n----------- Welcome To Our Bank --------------");
+                System.out.println("\n----------- Welcome To Our Bank ---------------");
                 System.out.println("\nChoose One Option : ");
                 System.out.println("\n1 - Register User ");
                 System.out.println("2 - Log In  ");
@@ -32,8 +32,8 @@ public class Main {
 
                         System.out.println("Enter your surname :");
                         String surname = scanner.next();
-                        System.out.println(" Entered full name : " + name + surname);
-                        System.out.println("Select your card type:");
+                        System.out.println(" Entered full name : " + name + " "+ surname);
+                        System.out.println("Select your desired card type:");
                         System.out.println("1: National Card");
                         System.out.println("2: Visa Card");
 
@@ -51,6 +51,39 @@ public class Main {
                             default:
                                 System.out.println("Invalid selection !");
                                 break;
+                        }
+
+                        // lets put new user info into database
+
+                        PreparedStatement ps = connection.prepareStatement("Insert into users(name,surname,card_type)" +
+                                "values (?,?,?)");
+
+                        ps.setString(1,name);
+                        ps.setString(2,surname);
+                        ps.setInt(3,card);
+                        int rs  = ps.executeUpdate();
+
+
+
+
+                        System.out.println("You successfully registered");
+                        System.out.println("choose an operation");
+                        System.out.println("deposit");
+                        System.out.println("withdraw");
+                        System.out.println("exit");
+                        int selection  = scanner.nextInt();
+                        switch(selection){
+                            case 1 :
+                                System.out.println("You chose deposit section");
+                                System.out.println("How much money you want to deposit ?");
+                                double deposit = scanner.nextDouble();
+                                if (deposit > 0 ){
+                                    PreparedStatement depositing = connection.prepareCall("Update Action set ? where user_id = id_number");
+                                    depositing.setDouble(1,deposit);
+                                    ResultSet rs = depositing.executeUpdate();
+
+
+                                }
                         }
 
                         // Here If user chooses the option 2 that means they are already registered
