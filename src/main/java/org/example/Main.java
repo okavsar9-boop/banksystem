@@ -10,16 +10,15 @@ public class Main {
             // Let's start with the entry point
 
             Scanner scanner = new Scanner(System.in);
-            boolean running = true;
 
-            while (running) {
+            while (true) {
 
-                System.out.println("\n----------- Welcome To Our Bank ---------------");
+                System.out.println("\n〰️〰️〰️〰️〰️〰️〰️ Welcome To Our Aurum Bank  〰️〰️〰️〰️〰️〰️〰️");
                 System.out.println("\nChoose One Option : ");
-                System.out.println("\n1 - Register User ");
-                System.out.println("2 - Log In  ");
-                System.out.println("3 - Exit ");
-                System.out.println("\n-----------------------------------------------");
+                System.out.println("\n1 - REGISTER USER ");
+                System.out.println("2 - LOG IN  ");
+                System.out.println("3 - EXIT ");
+                System.out.println("\n〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️");
 
                 // We check the user's intended option here
 
@@ -29,10 +28,18 @@ public class Main {
 
                         System.out.println("\nEnter your name :");
                         String name = scanner.next();
-
+                        while (name.length() < 2 ){
+                            System.out.println("Enter valid name ❗️");
+                            name = scanner.next();
+                        }
                         System.out.println("Enter your surname :");
                         String surname = scanner.next();
-                        System.out.println("\nEntered full name : " + (name.toUpperCase() + " "+ surname.toUpperCase().trim()));
+                        while (surname.length() < 3 ){
+                            System.out.println("Enter valid surname ❗️");
+                            surname = scanner.next();
+                        }
+                        System.out.println("\nEntered full name : " + (name.toUpperCase() + " "
+                                + surname.toUpperCase().trim()));
                         System.out.println("\nSelect your desired card type:");
                         System.out.println("1: National Card");
                         System.out.println("2: Visa Card");
@@ -73,27 +80,35 @@ public class Main {
                             System.out.println("Registration failed.❌ Please try again.");
                         }
 
+                        PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ?" +
+                                " and surname = ?");
+                        getId.setString(1,name);
+                        getId.setString(2,surname);
+                        ResultSet rs4 = getId.executeQuery();
+                        rs4.next();
+                        int user_new_id = rs4.getInt("user_id");
 
 
 
-                        System.out.println("You successfully registered");
-                        System.out.println("choose an operation");
-                        System.out.println("deposit");
-                        System.out.println("withdraw");
-                        System.out.println("exit");
+
+                        System.out.println("▫️️You get new ID : " + user_new_id + " Please Do not show anybody ❗");
+                        System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
+                        System.out.println("▫️Choose the next operation");
+                        System.out.println("1: DEPOSIT");
+                        System.out.println("2: WITHDRAW");
+                        System.out.println("3: EXIT");
                         int selection  = scanner.nextInt();
                         switch(selection){
                             case 1 :
-                                System.out.println("You chose deposit section");
-                                System.out.println("How much money you want to deposit ?");
+                                System.out.println("▫️You picked 'DEPOSIT' section");
+                                System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
                                 if (deposit > 0 ){
                                     PreparedStatement depositing = connection.prepareCall("Update Action " +
-                                            "set ? where user_id = id_number");
+                                            " set amount = amount + ? where user_id = ?");
                                     depositing.setDouble(1,deposit);
+                                    depositing.setInt(2,user_new_id );
                                     int rs2 = depositing.executeUpdate();
-
-
                                 }
                         }
 
@@ -101,7 +116,7 @@ public class Main {
                         // We have to just operate the another action
 
                     case 2:
-                        System.out.println("Enter your User ID number :");
+                        System.out.println("▫️Enter your User ID number :");
                         int id_number = scanner.nextInt();
 
                         // Here we are going to check if the ID is valid or not
