@@ -91,7 +91,7 @@ public class Main {
 
 
 
-                        System.out.println("▫️️You get new ID : " + user_new_id + " Please Do not show anybody ❗");
+                        System.out.println("▫️️You get new ID : <" + user_new_id + "> Please DO NOT show anybody ❗");
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
                         System.out.println("1: DEPOSIT");
@@ -103,19 +103,30 @@ public class Main {
                                 System.out.println("▫️You picked 'DEPOSIT' section");
                                 System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
-                                if (deposit > 0 ){
-                                    PreparedStatement depositing = connection.prepareCall("Update Action " +
-                                            " set amount = amount + ? where user_id = ?");
-                                    depositing.setDouble(1,deposit);
-                                    depositing.setInt(2,user_new_id );
-                                    int rs2 = depositing.executeUpdate();
+                                System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
+                                System.out.println("1: YES\n2: NO ");
+                                int select = scanner.nextInt();
+                                switch (select){
+                                    case 1 :
+                                        if (deposit > 0 ){
+                                            PreparedStatement depositing = connection.prepareCall("Update Action " +
+                                                    " set amount = amount + ? - 2 where user_id = ?");
+                                            depositing.setDouble(1,deposit);
+                                            depositing.setInt(2,user_new_id );
+                                            int rs2 = depositing.executeUpdate();
+                                        }
+                                        System.out.println("You deposited " + (deposit-2) +"$ to your card");
+                                        break;
                                 }
+                            case 2 :
+                                System.out.println(" Process is finished ");System.exit(0); break;
                         }
 
                         // Here If user chooses the option 2 that means they are already registered
                         // We have to just operate the another action
 
                     case 2:
+                        System.out.println("You picked LOG IN section");
                         System.out.println("▫️Enter your User ID number :");
                         int id_number = scanner.nextInt();
 
@@ -126,9 +137,27 @@ public class Main {
                         checkTheId.setInt(1,id_number);
                         ResultSet rs3 = checkTheId.executeQuery();
 
-                        if (rs3.next()){
+                        if (rs3.next()) {
                             System.out.println("How much Money you want to deposit ? :");
                             double money = scanner.nextDouble();
+                            System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
+                            System.out.println("1: YES\n2: NO ");
+                            int select2 = scanner.nextInt();
+                            switch (select2) {
+                                case 1:
+                                    if (money > 0) {
+                                        PreparedStatement depositing = connection.prepareCall("Update Action " +
+                                                " set amount = amount + ? where user_id = ?");
+                                        depositing.setDouble(1, money);
+                                        depositing.setInt(2, id_number);
+                                        int rs2 = depositing.executeUpdate();
+                                    }
+                                    System.out.println("You deposited " + (money-2) +"$ to your card");
+                                    break;
+                                case 2:
+                                    System.out.println(" Process is finished ");System.exit(0);break;
+                        }
+
 
                         }else {
                             System.out.println("Your ID is invalid! Move on to the 'REGISTER' page ");
