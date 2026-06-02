@@ -29,13 +29,13 @@ public class Main {
                         System.out.println("\nEnter your name :");
                         String name = scanner.next();
                         while (name.length() < 2 ){
-                            System.out.println("Enter valid name ❗️");
+                            System.out.println("Enter valid name. Name cannot be one letter ❗️");
                             name = scanner.next();
                         }
                         System.out.println("Enter your surname :");
                         String surname = scanner.next();
                         while (surname.length() < 3 ){
-                            System.out.println("Enter valid surname ❗️");
+                            System.out.println("Enter valid surname. Sur name should be more than 2 letter ❗️");
                             surname = scanner.next();
                         }
                         System.out.println("\nEntered full name : " + (name.toUpperCase() + " "
@@ -103,23 +103,42 @@ public class Main {
                                 System.out.println("▫️You picked 'DEPOSIT' section");
                                 System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
-                                System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
-                                System.out.println("1: YES\n2: NO ");
-                                int select = scanner.nextInt();
-                                switch (select){
-                                    case 1 :
-                                        if (deposit > 0 ){
+                                if (deposit > 0 ) {
+                                    System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
+                                    System.out.println("1: YES\n2: NO ");
+                                    int select = scanner.nextInt();
+                                    switch (select) {
+                                        case 1:
                                             PreparedStatement depositing = connection.prepareCall("Update Action " +
                                                     " set amount = amount + ? - 2 where user_id = ?");
-                                            depositing.setDouble(1,deposit);
-                                            depositing.setInt(2,user_new_id );
+                                            depositing.setDouble(1, deposit);
+                                            depositing.setInt(2, user_new_id);
                                             int rs2 = depositing.executeUpdate();
-                                        }
-                                        System.out.println("You deposited " + (deposit-2) +"$ to your card");
-                                        break;
+                                            System.out.println("You deposited " + (deposit - 2) + "$ to your card");
+                                            break;
+                                    }
+                                }else {
+                                    System.out.println("Deposited money cannot be NEGATIVE");
                                 }
+
+
+                                case 2 :
+                                    System.out.println(" Process is finished ");System.exit(0); break;
                             case 2 :
-                                System.out.println(" Process is finished ");System.exit(0); break;
+                                System.out.println("▫️You picked 'WITHDRAW' section");
+                                System.out.println("▫️How much money you want to withdraw ?");
+                                double withdraw = scanner.nextDouble();
+                                PreparedStatement checkBalance = connection.prepareStatement("SELECT");
+                                if (withdraw > 0 && withdraw < amount){
+                                    PreparedStatement withdrawing = connection.prepareCall("Update Action " +
+                                            " set amount = amount - ? - 2 where user_id = ?");
+                                    withdrawing.setDouble(1, withdraw);
+                                    withdrawing.setInt(2, user_new_id);
+                                    int rs5 = withdrawing.executeUpdate();
+                                    System.out.println("You have received " +withdraw+ "$ ");
+                                    break;
+                                }
+
                         }
 
                         // Here If user chooses the option 2 that means they are already registered
@@ -140,23 +159,28 @@ public class Main {
                         if (rs3.next()) {
                             System.out.println("How much Money you want to deposit ? :");
                             double money = scanner.nextDouble();
+                            if (money > 0) {
                             System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
                             System.out.println("1: YES\n2: NO ");
                             int select2 = scanner.nextInt();
                             switch (select2) {
                                 case 1:
-                                    if (money > 0) {
-                                        PreparedStatement depositing = connection.prepareCall("Update Action " +
-                                                " set amount = amount + ? where user_id = ?");
-                                        depositing.setDouble(1, money);
-                                        depositing.setInt(2, id_number);
-                                        int rs2 = depositing.executeUpdate();
-                                    }
-                                    System.out.println("You deposited " + (money-2) +"$ to your card");
+                                    PreparedStatement depositing = connection.prepareCall("Update Action " +
+                                            " set amount = amount + ? where user_id = ?");
+                                    depositing.setDouble(1, money);
+                                    depositing.setInt(2, id_number);
+                                    int rs2 = depositing.executeUpdate();
+
+                                    System.out.println("You deposited " + (money - 2) + "$ to your card");
                                     break;
                                 case 2:
-                                    System.out.println(" Process is finished ");System.exit(0);break;
-                        }
+                                    System.out.println(" Process is finished ");
+                                    System.exit(0);
+                                    break;
+                            }
+                            }else {
+                                System.out.println("Deposited money cannot be NEGATIVE");
+                            }
 
 
                         }else {
