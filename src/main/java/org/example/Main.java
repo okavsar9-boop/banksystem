@@ -3,7 +3,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
 
         try (Connection connection = DatabaseConnection.getConnection()) {
 
@@ -103,33 +103,20 @@ public class Main {
                                 System.out.println("▫️You picked 'DEPOSIT' section");
                                 System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
-                                if (deposit > 0 ) {
-                                    System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
-                                    System.out.println("1: YES\n2: NO ");
-                                    int select = scanner.nextInt();
-                                    switch (select) {
-                                        case 1:
-                                            PreparedStatement depositing = connection.prepareCall("Update Action " +
-                                                    " set amount = amount + ? - 2 where user_id = ?");
-                                            depositing.setDouble(1, deposit);
-                                            depositing.setInt(2, user_new_id);
-                                            int rs2 = depositing.executeUpdate();
-                                            System.out.println("You deposited " + (deposit - 2) + "$ to your card");
-                                            break;
-                                    }
-                                }else {
-                                    System.out.println("Deposited money cannot be NEGATIVE");
-                                }
 
-
-                                case 2 :
-                                    System.out.println(" Process is finished ");System.exit(0); break;
                             case 2 :
+                                    System.out.println(" Process is finished ");System.exit(0); break;
+                                    case 2 :
                                 System.out.println("▫️You picked 'WITHDRAW' section");
                                 System.out.println("▫️How much money you want to withdraw ?");
                                 double withdraw = scanner.nextDouble();
-                                PreparedStatement checkBalance = connection.prepareStatement("SELECT");
-                                if (withdraw > 0 && withdraw < amount){
+                                PreparedStatement checkBalance = connection.prepareStatement("select Coalesce(" +
+                                        "sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+                                checkBalance.setInt(1, user_new_id);
+                                ResultSet rss = checkBalance.executeQuery();
+                                rss.next();
+                                double balance = rss.getDouble(1);
+                                if (withdraw > 0 && withdraw <  balance){
                                     PreparedStatement withdrawing = connection.prepareCall("Update Action " +
                                             " set amount = amount - ? - 2 where user_id = ?");
                                     withdrawing.setDouble(1, withdraw);
@@ -205,4 +192,24 @@ public class Main {
             System.out.println("Connection Failed : " + e.getMessage());
         }
     }
+    public static void ( Scanner scanner, Connection connection , int user_new_id  , Double deposit )throws SQLException{
+        if (deposit > 0 ) {
+            System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
+            System.out.println("1: YES\n2: NO ");
+            int select = scanner.nextInt();
+            switch (select) {
+                case 1:
+                    PreparedStatement depositing = connection.prepareCall("Update Action " +
+                            " set amount = amount + ? - 2 where user_id = ?");
+                    depositing.setDouble(1, deposit);
+                    depositing.setInt(2, user_new_id);
+                    int rs2 = depositing.executeUpdate();
+                    System.out.println("You deposited " + (deposit - 2) + "$ to your card");
+                    break;
+            }
+        }else {
+            System.out.println("Deposited money cannot be NEGATIVE");
+        }
+    }
+
 }
