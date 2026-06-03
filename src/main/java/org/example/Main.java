@@ -20,7 +20,6 @@ public class Main {
                 System.out.println("3 - EXIT ");
                 System.out.println("\n〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️");
 
-                // We check the user's intended option here
 
                 int option = scanner.nextInt();
                 switch (option) {
@@ -43,9 +42,6 @@ public class Main {
                         System.out.println("\nSelect your desired card type:");
                         System.out.println("1: National Card");
                         System.out.println("2: Visa Card");
-
-                        // Here user should enter their card type because each card type has different actions
-
                         int card = scanner.nextInt();
                         while (card != 1 && card != 2) {
                             System.out.println("Invalid selection! Try again");
@@ -62,13 +58,9 @@ public class Main {
                                 System.out.println("You chose Visa card");
                                 break;
                         }
-
-
                         // lets put new user info into database
 
-                        PreparedStatement ps = connection.prepareStatement("Insert into " +
-                                "users(name,surname,card_type)" +
-                                "values (?,?,?::acc_enum)");
+                        PreparedStatement ps = connection.prepareStatement("Insert into users(name,surname,card_type) values (?,?,?::acc_enum)");
 
                         ps.setString(1, name);
                         ps.setString(2, surname);
@@ -80,8 +72,7 @@ public class Main {
                             System.out.println("Registration failed.❌ Please try again.");
                         }
 
-                        PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ?" +
-                                " and surname = ?");
+                        PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ? and surname = ?");
                         getId.setString(1, name);
                         getId.setString(2, surname);
                         ResultSet rs4 = getId.executeQuery();
@@ -93,9 +84,8 @@ public class Main {
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
                         System.out.println("1: DEPOSIT");
-                        System.out.println("2: WITHDRAW");
-                        System.out.println("3: EXIT");
-                        int selection = scanner.nextInt();
+                        System.out.println("2: EXIT");
+                        byte selection = scanner.nextByte();
                         switch (selection) {
                             case 1:
                                 System.out.println("▫️You picked 'DEPOSIT' section");
@@ -105,26 +95,23 @@ public class Main {
                                 System.out.println("Process is finished ");
                                 break;
                             case 2:
-                                System.out.println("▫️You picked 'WITHDRAW' section");
-                                System.out.println("▫️How much money you want to withdraw ?");
-                                double withdrawAmount = scanner.nextDouble();
-                                Withdraw(scanner, connection, user_new_id, withdrawAmount);
+                                System.out.println("You chose EXIT , Bye");
+                                break;
+                            default:
+                                System.out.println("Invalid choice");
+                                break;
                         }
                         break;
-
-                    // Here If user chooses the option 2 that means they are already registered
-                    // We have to just operate the another action
 
                     case 2:
                         System.out.println("You picked LOG IN section");
                         System.out.println("▫️Enter your User ID number :");
                         int id_number = scanner.nextInt();
-                        PreparedStatement login = connection.prepareStatement("select Coalesce(" +
-                                "sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+                        PreparedStatement login = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
                         login.setInt(1, id_number);
                         ResultSet rss = login.executeQuery();
                         rss.next();
-                        double balance = rss.getDouble(1);
+                        rss.getDouble(1);
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
                         System.out.println("1: DEPOSIT");
@@ -144,19 +131,14 @@ public class Main {
                                 System.out.println("▫️How much money you want to withdraw ?");
                                 double withdrawAmount = scanner.nextDouble();
                                 Withdraw(scanner, connection, id_number, withdrawAmount);
+                                break;
+                        } break;
 
-                        }
-
-
-                        // Here we are going to check if the ID is valid or not
-
-                        // The user chose exit section ,so we terminate all things !
                     case 3:
                         System.out.println("Exit chosen");
                         System.exit(0);
                         break;
 
-                    // If user enters the invalid number or other than from , 1 - 3 it will be show an error
                     default:
                         System.out.println("Invalid choice");
                         break;
@@ -175,11 +157,11 @@ public class Main {
             int select = scanner.nextInt();
             switch (select) {
                 case 1:
-                    PreparedStatement depositing = connection.prepareCall("Update Action " +
-                            " set amount = amount + ? - 2 where user_id = ?");
-                    depositing.setDouble(1, deposit);
-                    depositing.setInt(2, user_new_id);
-                    int rs2 = depositing.executeUpdate();
+                    PreparedStatement depositing = connection.prepareCall("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
+                    depositing.setInt(1, user_new_id);
+                    depositing.setString(2,"DEPOSIT" );
+                    depositing.setDouble(3, deposit);
+                    depositing.executeUpdate();
                     System.out.println("You deposited " + deposit + "$ to your card");
                     break;
             }
@@ -191,17 +173,16 @@ public class Main {
     public static void Withdraw(Scanner scanner, Connection connection, int user_id, Double withdraw) throws SQLException {
 
         double balance = 0;
-        PreparedStatement login = connection.prepareStatement("select Coalesce(" +
-                "sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+        PreparedStatement login = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
         login.setInt(1, user_id);
         ResultSet rss = login.executeQuery();
         rss.next();
         balance = rss.getDouble(1);
         if (withdraw > 0 && withdraw < balance) {
-            PreparedStatement withdrawing = connection.prepareStatement("Update Action " +
-                    " set amount = amount - ? - 2 where user_id = ?");
-            withdrawing.setDouble(1, withdraw);
-            withdrawing.setInt(2, user_id);
+            PreparedStatement withdrawing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
+            withdrawing.setInt(1, user_id);
+            withdrawing.setString(2, "WITHDRAWAL");
+            withdrawing.setDouble(3,withdraw);
             withdrawing.executeUpdate();
             System.out.println("You have received " + withdraw + "$ ");
         }
