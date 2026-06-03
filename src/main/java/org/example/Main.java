@@ -112,7 +112,8 @@ public class Main {
                         login.setInt(1, id_number);
                         ResultSet rss = login.executeQuery();
                         rss.next();
-                        rss.getDouble(1);
+                        double currentBalance = rss.getDouble(1);
+                        System.out.println("💳 Your current balance: " + currentBalance + "$");
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
                         System.out.println("1: DEPOSIT");
@@ -133,24 +134,18 @@ public class Main {
                                 double withdrawAmount = scanner.nextDouble();
                                 Withdraw(scanner, connection, id_number, withdrawAmount);
                                 break;
-                        } break;
-                    case 3 :
-                        PreparedStatement login = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
-                        login.setInt(1, user_id);
-                        ResultSet rss = login.executeQuery();
-                        rss.next();
-                        balance = rss.getDouble(1);
-                        if (withdraw > 0 && withdraw < balance) {
-                            PreparedStatement withdrawing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
-                            withdrawing.setInt(1, user_id);
-                            withdrawing.setString(2, "WITHDRAWAL");
-                            withdrawing.setDouble(3,withdraw);
-                            withdrawing.executeUpdate();
-                            System.out.println("You have received " + withdraw + "$ ");
                         }
-                        else {
-                            System.out.println("Either entered balance is negative or balance is not enough !");
-                        }
+                        break;
+                    case 3:
+                        System.out.println("▫️Enter your User ID number :");
+                        int id_number2 = scanner.nextInt();
+                        PreparedStatement checkBalance = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+                        checkBalance.setInt(1, id_number2);
+                        ResultSet rs2 = checkBalance.executeQuery();
+                        rs2.next();
+                        double result = rs2.getDouble(1);
+                        System.out.println(result);
+                        break;
 
                     case 4:
                         System.out.println("Exit chosen");
