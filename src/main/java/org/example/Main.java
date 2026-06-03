@@ -17,7 +17,8 @@ public class Main {
                 System.out.println("\nChoose One Option : ");
                 System.out.println("\n1 - REGISTER USER ");
                 System.out.println("2 - LOG IN  ");
-                System.out.println("3 - EXIT ");
+                System.out.println("3 - CHECK THE BALANCE");
+                System.out.println("4 - EXIT ");
                 System.out.println("\n〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️");
 
 
@@ -133,8 +134,25 @@ public class Main {
                                 Withdraw(scanner, connection, id_number, withdrawAmount);
                                 break;
                         } break;
+                    case 3 :
+                        PreparedStatement login = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+                        login.setInt(1, user_id);
+                        ResultSet rss = login.executeQuery();
+                        rss.next();
+                        balance = rss.getDouble(1);
+                        if (withdraw > 0 && withdraw < balance) {
+                            PreparedStatement withdrawing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
+                            withdrawing.setInt(1, user_id);
+                            withdrawing.setString(2, "WITHDRAWAL");
+                            withdrawing.setDouble(3,withdraw);
+                            withdrawing.executeUpdate();
+                            System.out.println("You have received " + withdraw + "$ ");
+                        }
+                        else {
+                            System.out.println("Either entered balance is negative or balance is not enough !");
+                        }
 
-                    case 3:
+                    case 4:
                         System.out.println("Exit chosen");
                         System.exit(0);
                         break;
