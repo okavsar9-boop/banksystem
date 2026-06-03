@@ -3,7 +3,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args)  {
+    public static void main(String[] args) throws SQLException {
 
         try (Connection connection = DatabaseConnection.getConnection()) {
 
@@ -28,13 +28,13 @@ public class Main {
 
                         System.out.println("\nEnter your name :");
                         String name = scanner.next();
-                        while (name.length() < 2 ){
+                        while (name.length() < 2) {
                             System.out.println("Enter valid name. Name cannot be one letter ❗️");
                             name = scanner.next();
                         }
                         System.out.println("Enter your surname :");
                         String surname = scanner.next();
-                        while (surname.length() < 3 ){
+                        while (surname.length() < 3) {
                             System.out.println("Enter valid surname. Sur name should be more than 2 letter ❗️");
                             surname = scanner.next();
                         }
@@ -47,10 +47,10 @@ public class Main {
                         // Here user should enter their card type because each card type has different actions
 
                         int card = scanner.nextInt();
-                        while (card != 1 && card != 2 ){
+                        while (card != 1 && card != 2) {
                             System.out.println("Invalid selection! Try again");
                             card = scanner.nextInt();
-                    }
+                        }
                         String cardType = "";
                         switch (card) {
                             case 1:
@@ -74,21 +74,19 @@ public class Main {
                         ps.setString(2, surname);
                         ps.setString(3, cardType);
                         int rs = ps.executeUpdate();
-                        if (rs == 1 ) {
+                        if (rs == 1) {
                             System.out.println("Registration was succeed ✅");
-                        }else {
+                        } else {
                             System.out.println("Registration failed.❌ Please try again.");
                         }
 
                         PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ?" +
                                 " and surname = ?");
-                        getId.setString(1,name);
-                        getId.setString(2,surname);
+                        getId.setString(1, name);
+                        getId.setString(2, surname);
                         ResultSet rs4 = getId.executeQuery();
                         rs4.next();
                         int user_new_id = rs4.getInt("user_id");
-
-
 
 
                         System.out.println("▫️️You get new ID : <" + user_new_id + "> Please DO NOT show anybody ❗");
@@ -97,86 +95,63 @@ public class Main {
                         System.out.println("1: DEPOSIT");
                         System.out.println("2: WITHDRAW");
                         System.out.println("3: EXIT");
-                        int selection  = scanner.nextInt();
-                        switch(selection){
-                            case 1 :
+                        int selection = scanner.nextInt();
+                        switch (selection) {
+                            case 1:
                                 System.out.println("▫️You picked 'DEPOSIT' section");
                                 System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
-
-                            case 2 :
-                                    System.out.println(" Process is finished ");System.exit(0); break;
-                                    case 2 :
+                                Deposit(scanner, connection, user_new_id, deposit);
+                                System.out.println(" Process is finished ");
+                                System.exit(0);
+                                break;
+                            case 2:
                                 System.out.println("▫️You picked 'WITHDRAW' section");
                                 System.out.println("▫️How much money you want to withdraw ?");
-                                double withdraw = scanner.nextDouble();
-                                PreparedStatement checkBalance = connection.prepareStatement("select Coalesce(" +
-                                        "sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
-                                checkBalance.setInt(1, user_new_id);
-                                ResultSet rss = checkBalance.executeQuery();
-                                rss.next();
-                                double balance = rss.getDouble(1);
-                                if (withdraw > 0 && withdraw <  balance){
-                                    PreparedStatement withdrawing = connection.prepareCall("Update Action " +
-                                            " set amount = amount - ? - 2 where user_id = ?");
-                                    withdrawing.setDouble(1, withdraw);
-                                    withdrawing.setInt(2, user_new_id);
-                                    int rs5 = withdrawing.executeUpdate();
-                                    System.out.println("You have received " +withdraw+ "$ ");
-                                    break;
-                                }
-
+                                double withdrawAmount = scanner.nextDouble();
+                                Withdraw(scanner, connection, user_new_id, withdrawAmount);
                         }
+                        break;
 
-                        // Here If user chooses the option 2 that means they are already registered
-                        // We have to just operate the another action
+                    // Here If user chooses the option 2 that means they are already registered
+                    // We have to just operate the another action
 
                     case 2:
                         System.out.println("You picked LOG IN section");
                         System.out.println("▫️Enter your User ID number :");
                         int id_number = scanner.nextInt();
+                        PreparedStatement login = connection.prepareStatement("select Coalesce(" +
+                                "sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+                        login.setInt(1, id_number);
+                        ResultSet rss = login.executeQuery();
+                        rss.next();
+                        double balance = rss.getDouble(1);
+                        System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
+                        System.out.println("▫️Choose the next operation");
+                        System.out.println("1: DEPOSIT");
+                        System.out.println("2: WITHDRAW");
+                        System.out.println("3: EXIT");
+                        int selection2 = scanner.nextInt();
+                        switch (selection2) {
+                            case 1:
+                                System.out.println("▫️You picked 'DEPOSIT' section");
+                                System.out.println("▫️How much money you want to deposit ?");
+                                double deposit2 = scanner.nextDouble();
+                                Deposit(scanner, connection, id_number, deposit2);
+                                System.out.println(" Process is finished ");
+                                break;
+                            case 2:
+                                System.out.println("▫️You picked 'WITHDRAW' section");
+                                System.out.println("▫️How much money you want to withdraw ?");
+                                double withdrawAmount = scanner.nextDouble();
+                                Withdraw(scanner, connection, id_number, withdrawAmount);
+
+                        }
+
 
                         // Here we are going to check if the ID is valid or not
 
-                        PreparedStatement checkTheId = connection.prepareStatement("Select * from users " +
-                                "where user_id = ?");
-                        checkTheId.setInt(1,id_number);
-                        ResultSet rs3 = checkTheId.executeQuery();
-
-                        if (rs3.next()) {
-                            System.out.println("How much Money you want to deposit ? :");
-                            double money = scanner.nextDouble();
-                            if (money > 0) {
-                            System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
-                            System.out.println("1: YES\n2: NO ");
-                            int select2 = scanner.nextInt();
-                            switch (select2) {
-                                case 1:
-                                    PreparedStatement depositing = connection.prepareCall("Update Action " +
-                                            " set amount = amount + ? where user_id = ?");
-                                    depositing.setDouble(1, money);
-                                    depositing.setInt(2, id_number);
-                                    int rs2 = depositing.executeUpdate();
-
-                                    System.out.println("You deposited " + (money - 2) + "$ to your card");
-                                    break;
-                                case 2:
-                                    System.out.println(" Process is finished ");
-                                    System.exit(0);
-                                    break;
-                            }
-                            }else {
-                                System.out.println("Deposited money cannot be NEGATIVE");
-                            }
-
-
-                        }else {
-                            System.out.println("Your ID is invalid! Move on to the 'REGISTER' page ");
-                        }
-                        break;
-
-                    // The user chose exit section ,so we terminate all things !
-
+                        // The user chose exit section ,so we terminate all things !
                     case 3:
                         System.out.println("Exit chosen");
                         System.exit(0);
@@ -188,12 +163,14 @@ public class Main {
                         break;
                 }
             }
+
         } catch (SQLException e) {
             System.out.println("Connection Failed : " + e.getMessage());
         }
     }
-    public static void ( Scanner scanner, Connection connection , int user_new_id  , Double deposit )throws SQLException{
-        if (deposit > 0 ) {
+
+    public static void Deposit(Scanner scanner, Connection connection, int user_new_id, Double deposit) throws SQLException {
+        if (deposit > 0) {
             System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
             System.out.println("1: YES\n2: NO ");
             int select = scanner.nextInt();
@@ -207,9 +184,30 @@ public class Main {
                     System.out.println("You deposited " + (deposit - 2) + "$ to your card");
                     break;
             }
-        }else {
+        } else {
             System.out.println("Deposited money cannot be NEGATIVE");
         }
     }
 
+    public static void Withdraw(Scanner scanner, Connection connection, int user_id, Double withdraw) throws SQLException {
+
+        double balance = 0;
+        PreparedStatement login = connection.prepareStatement("select Coalesce(" +
+                "sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
+        login.setInt(1, user_id);
+        ResultSet rss = login.executeQuery();
+        rss.next();
+        balance = rss.getDouble(1);
+        if (withdraw > 0 && withdraw < balance) {
+            PreparedStatement withdrawing = connection.prepareStatement("Update Action " +
+                    " set amount = amount - ? - 2 where user_id = ?");
+            withdrawing.setDouble(1, withdraw);
+            withdrawing.setInt(2, user_id);
+            withdrawing.executeUpdate();
+            System.out.println("You have received " + withdraw + "$ ");
+        }
+        else {
+            System.out.println("Either entered balance is negative or balance is not enough !");
+        }
+    }
 }
