@@ -102,8 +102,7 @@ public class Main {
                                 System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
                                 Deposit(scanner, connection, user_new_id, deposit);
-                                System.out.println(" Process is finished ");
-                                System.exit(0);
+                                System.out.println("Process is finished ");
                                 break;
                             case 2:
                                 System.out.println("▫️You picked 'WITHDRAW' section");
@@ -181,7 +180,7 @@ public class Main {
                     depositing.setDouble(1, deposit);
                     depositing.setInt(2, user_new_id);
                     int rs2 = depositing.executeUpdate();
-                    System.out.println("You deposited " + (deposit - 2) + "$ to your card");
+                    System.out.println("You deposited " + deposit + "$ to your card");
                     break;
             }
         } else {
