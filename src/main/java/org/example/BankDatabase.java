@@ -14,7 +14,7 @@ public class BankDatabase {
         depositing.executeUpdate();
     }
 
-    public static void identifyActionType(Connection connection, int user_id, double withdraw) throws SQLException {
+    public static void withdrawDatabase(Connection connection, int user_id, double withdraw) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
         ps.setInt(1, user_id);
         ps.setString(2, "WITHDRAWAL");
@@ -23,7 +23,7 @@ public class BankDatabase {
     }
 
 
-    public static void insertingNewIDToDatabase(Connection connection, String name, String surname, String cardType) throws SQLException {
+    public static int insertingNewIDToDatabase(Connection connection, String name, String surname, String cardType) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("Insert into users(name,surname,card_type) values (?,?,?::acc_enum) RETURNING user_id");
         ps.setString(1, name);
         ps.setString(2, surname);
@@ -32,22 +32,22 @@ public class BankDatabase {
         if (rs.next()) {
             int new_id = rs.getInt("user_id");
             System.out.println("Registration was succeed ✅");
-            System.out.println("▫️️You get new ID : <" + new_id + "> Please DO NOT show anybody ❗");
+            return new_id;
 
         } else {
-            System.out.println("Registration failed.❌ Please try again.");
+
         }
     }
 
-    public static int getId(Connection connection, String name, String surname) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("Select user_id from users where name = ? and surname = ?");
-        ps.setString(1, name);
-        ps.setString(1, surname);
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int id = rs.getInt("user_id");
-        return id;
-    }
+//    public static int getId(Connection connection, String name, String surname) throws SQLException {
+//        PreparedStatement ps = connection.prepareStatement("Select user_id from users where name = ? and surname = ?");
+//        ps.setString(1, name);
+//        ps.setString(2, surname);
+//        ResultSet rs = ps.executeQuery();
+//        rs.next();
+//        int id = rs.getInt("user_id");
+//        return id;
+//    }
 
     public static double balanceCheck(Connection connection, int user_id) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("select Coalesce(sum(case when action_type = 'DEPOSIT' then amount else -amount end), 0) from Action where user_id = ?");

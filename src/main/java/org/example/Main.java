@@ -62,9 +62,10 @@ public class Main {
                         }
                         // lets put new user info into database
 
-                        BankDatabase.insertingNewIDToDatabase(connection,name,surname,cardType);
-                        int new_id = BankDatabase.getId(connection,name,surname);
+                        int new_id = BankDatabase.insertingNewIDToDatabase(connection,name,surname,cardType);
+                        System.out.println("▫️️You get new ID : <" + new_id + "> Please DO NOT show anybody ❗");
 
+                        // Operation with the new card
 
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
@@ -125,7 +126,7 @@ public class Main {
                                     System.out.println("▫️You picked 'WITHDRAW' section");
                                     System.out.println("▫️How much money you want to withdraw ?");
                                     double withdrawAmount = scanner.nextDouble();
-                                    BankOperation.withdraw(scanner, connection, id_number, withdrawAmount);
+                                    BankOperation.withdraw(connection, id_number, withdrawAmount);
                                 } catch (InputMismatchException e) {
                                     scanner.next();
                                     System.out.println("Wrong Input!");

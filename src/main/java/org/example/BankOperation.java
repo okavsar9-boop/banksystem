@@ -9,24 +9,22 @@ public class BankOperation {
             System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
             System.out.println("1: YES\n2: NO ");
             int select = scanner.nextInt();
-            switch (select) {
-                case 1:
-                    BankDatabase.depositDatabase(connection,user_new_id,deposit);
-                    System.out.println("You deposited " + deposit + "$ to your card");
-                    double currentBalance = balance(connection, user_new_id);
-                    System.out.println("💳 Your current balance: " + currentBalance + "$");
-                    break;
+            if (select == 1) {
+                BankDatabase.depositDatabase(connection, user_new_id, deposit);
+                System.out.println("You deposited " + deposit + "$ to your card");
+                double currentBalance = balance(connection, user_new_id);
+                System.out.println("💳 Your current balance: " + currentBalance + "$");
             }
         } else {
             System.out.println("Deposited money cannot be NEGATIVE");
         }
     }
 
-    public static void withdraw(Scanner scanner, Connection connection, int user_id, Double withdraw) throws SQLException {
+    public static void withdraw( Connection connection, int user_id, Double withdraw) throws SQLException {
 
         double balance = balance(connection, user_id);
         if (withdraw > 0 && withdraw <= balance) {
-            BankDatabase.identifyActionType(connection,user_id,withdraw);
+            BankDatabase.withdrawDatabase(connection,user_id,withdraw);
             System.out.println("You have received " + withdraw + "$ ");
             double currentBalance = balance(connection, user_id);
             System.out.println("💳 Your current balance: " + currentBalance + "$");
