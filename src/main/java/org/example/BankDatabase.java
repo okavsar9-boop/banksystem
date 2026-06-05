@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 public class BankDatabase {
     public static void depositDatabase(Connection connection, int user_new_id, Double deposit) throws SQLException {
-        PreparedStatement depositing = connection.prepareCall("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
+        PreparedStatement depositing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
         depositing.setInt(1, user_new_id);
         depositing.setString(2, "DEPOSIT");
         depositing.setDouble(3, deposit);
@@ -30,24 +30,13 @@ public class BankDatabase {
         ps.setString(3, cardType);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            int new_id = rs.getInt("user_id");
-            System.out.println("Registration was succeed ✅");
-            return new_id;
+            return rs.getInt("user_id");
 
         } else {
-
+            throw new SQLException("Registration failed ❌ Please try again.");
         }
     }
 
-//    public static int getId(Connection connection, String name, String surname) throws SQLException {
-//        PreparedStatement ps = connection.prepareStatement("Select user_id from users where name = ? and surname = ?");
-//        ps.setString(1, name);
-//        ps.setString(2, surname);
-//        ResultSet rs = ps.executeQuery();
-//        rs.next();
-//        int id = rs.getInt("user_id");
-//        return id;
-//    }
 
     public static double balanceCheck(Connection connection, int user_id) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("select Coalesce(sum(case when action_type = 'DEPOSIT' then amount else -amount end), 0) from Action where user_id = ?");
