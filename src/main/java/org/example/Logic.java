@@ -40,8 +40,7 @@ public class Logic {
         }
 
 
-        System.out.println("Set 4 digit PIN");
-        int pin = scanner.nextInt();
+        int pin = getValidPin(scanner);
         int userId = BankDatabase.insertingNewIDToDatabase(connection, name, surname, cardType, pin);
         System.out.println("Registration was succed ✅");
         System.out.println("▫️️You get new ID : <" + userId + "> Please DO NOT show anybody ❗");
@@ -82,8 +81,7 @@ public class Logic {
         int id = scanner.nextInt();
         boolean authenticated = false;
         for (int i = 0; i < 3; i++) {
-            System.out.println("Enter your PIN");
-            int pin = scanner.nextInt();
+            int pin = getValidPin(scanner);
             boolean isValid = BankDatabase.verifyPin(connection, id, pin);
             if (isValid) {
                 authenticated = true;
@@ -105,8 +103,8 @@ public class Logic {
         System.out.println("1: DEPOSIT");
         System.out.println("2: WITHDRAW");
         System.out.println("3: EXIT");
-        int selection2 = scanner.nextInt();
-        switch (selection2) {
+        int menu = scanner.nextInt();
+        switch (menu) {
             case 1:
                 try {
                     System.out.println("▫️You picked 'DEPOSIT' section");
@@ -136,15 +134,25 @@ public class Logic {
     public static void handleBalance(Scanner scanner, Connection connection) throws SQLException {
         System.out.println("Enter your ID");
         int id = scanner.nextInt();
-        System.out.println("Enter your PIN");
-        int pin = scanner.nextInt();
+        int pin = getValidPin(scanner);
         boolean isValid = BankDatabase.verifyPin(connection, id, pin);
         if (!isValid) {
             System.out.println("Access Denied");
-        } else {
+            return;
+        }
             double result = BankOperation.balance(connection, id);
             System.out.println(result);
         }
+
+    private static int getValidPin(Scanner scanner){
+        System.out.println("Enter the PIN");
+        int pin = scanner.nextInt();
+        while(pin < 1000 || pin > 9999){
+            System.out.println("PIN must be exactly 4 digits. Try again:");
+            pin = scanner.nextInt();
+        }
+        return pin;
+        }
     }
-}
+
 
