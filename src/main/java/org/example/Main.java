@@ -73,15 +73,15 @@ public class Main {
                             System.out.println("Registration failed.❌ Please try again.");
                         }
 
-                        PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ? and surname = ?");
+                        PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ? and surname = ? ORDER BY user_id DESC LIMIT 1");
                         getId.setString(1, name);
                         getId.setString(2, surname);
                         ResultSet rs4 = getId.executeQuery();
                         rs4.next();
-                        int user_new_id = rs4.getInt("user_id");
+                        int new_id= rs4.getInt("user_id");
 
 
-                        System.out.println("▫️️You get new ID : <" + user_new_id + "> Please DO NOT show anybody ❗");
+                        System.out.println("▫️️You get new ID : <" + new_id + "> Please DO NOT show anybody ❗");
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
                         System.out.println("1: DEPOSIT");
@@ -92,7 +92,7 @@ public class Main {
                                 System.out.println("▫️You picked 'DEPOSIT' section");
                                 System.out.println("▫️How much money you want to deposit ?");
                                 double deposit = scanner.nextDouble();
-                                Deposit(scanner, connection, user_new_id, deposit);
+                                Deposit(scanner, connection, new_id, deposit);
                                 System.out.println("Process is finished ");
                                 break;
                             case 2:
@@ -108,11 +108,7 @@ public class Main {
                         System.out.println("You picked LOG IN section");
                         System.out.println("▫️Enter your User ID number :");
                         int id_number = scanner.nextInt();
-                        PreparedStatement login = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
-                        login.setInt(1, id_number);
-                        ResultSet rss = login.executeQuery();
-                        rss.next();
-                        double currentBalance = rss.getDouble(1);
+                        double currentBalance = Balance(connection,id_number);
                         System.out.println("💳 Your current balance: " + currentBalance + "$");
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
@@ -139,11 +135,7 @@ public class Main {
                     case 3:
                         System.out.println("▫️Enter your User ID number :");
                         int id_number2 = scanner.nextInt();
-                        PreparedStatement checkBalance = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
-                        checkBalance.setInt(1, id_number2);
-                        ResultSet rs2 = checkBalance.executeQuery();
-                        rs2.next();
-                        double result = rs2.getDouble(1);
+                        double result = Balance(connection,id_number2);
                         System.out.println(result);
                         break;
 
@@ -172,10 +164,12 @@ public class Main {
                 case 1:
                     PreparedStatement depositing = connection.prepareCall("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
                     depositing.setInt(1, user_new_id);
-                    depositing.setString(2,"DEPOSIT" );
+                    depositing.setString(2, "DEPOSIT");
                     depositing.setDouble(3, deposit);
                     depositing.executeUpdate();
                     System.out.println("You deposited " + deposit + "$ to your card");
+                    double currentBalance = Balance(connection,user_new_id);
+                    System.out.println("💳 Your current balance: " + currentBalance + "$");
                     break;
             }
         } else {
@@ -185,22 +179,30 @@ public class Main {
 
     public static void Withdraw(Scanner scanner, Connection connection, int user_id, Double withdraw) throws SQLException {
 
-        double balance = 0;
-        PreparedStatement login = connection.prepareStatement("select Coalesce(sum( case when action_type = 'DEPOSIT' then amount else -amount end ),0)   from Action where user_id = ?");
-        login.setInt(1, user_id);
-        ResultSet rss = login.executeQuery();
-        rss.next();
-        balance = rss.getDouble(1);
-        if (withdraw > 0 && withdraw < balance) {
+        double balance = Balance(connection, user_id);
+        if (withdraw > 0 && withdraw <= balance) {
             PreparedStatement withdrawing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
             withdrawing.setInt(1, user_id);
             withdrawing.setString(2, "WITHDRAWAL");
-            withdrawing.setDouble(3,withdraw);
+            withdrawing.setDouble(3, withdraw);
             withdrawing.executeUpdate();
             System.out.println("You have received " + withdraw + "$ ");
-        }
-        else {
+            double currentBalance = Balance(connection,user_id);
+            System.out.println("💳 Your current balance: " + currentBalance + "$");
+        } else {
             System.out.println("Either entered balance is negative or balance is not enough !");
         }
     }
+
+    public static double Balance(Connection connection, int user_id) throws SQLException {
+        PreparedStatement ps = connection.prepareStatement("select Coalesce(sum(case when action_type = 'DEPOSIT' then amount else -amount end), 0) from Action where user_id = ?");
+        ps.setInt(1,user_id);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        return rs.getDouble(1);
+
+
+    }
 }
+
+
