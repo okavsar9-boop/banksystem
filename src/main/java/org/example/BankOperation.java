@@ -1,8 +1,5 @@
 package org.example;
-
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -14,11 +11,7 @@ public class BankOperation {
             int select = scanner.nextInt();
             switch (select) {
                 case 1:
-                    PreparedStatement depositing = connection.prepareCall("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
-                    depositing.setInt(1, user_new_id);
-                    depositing.setString(2, "DEPOSIT");
-                    depositing.setDouble(3, deposit);
-                    depositing.executeUpdate();
+                    BankDatabase.depositDatabase(connection,user_new_id,deposit);
                     System.out.println("You deposited " + deposit + "$ to your card");
                     double currentBalance = balance(connection, user_new_id);
                     System.out.println("💳 Your current balance: " + currentBalance + "$");
@@ -33,11 +26,7 @@ public class BankOperation {
 
         double balance = balance(connection, user_id);
         if (withdraw > 0 && withdraw <= balance) {
-            PreparedStatement withdrawing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
-            withdrawing.setInt(1, user_id);
-            withdrawing.setString(2, "WITHDRAWAL");
-            withdrawing.setDouble(3, withdraw);
-            withdrawing.executeUpdate();
+            BankDatabase.identifyActionType(connection,user_id,withdraw);
             System.out.println("You have received " + withdraw + "$ ");
             double currentBalance = balance(connection, user_id);
             System.out.println("💳 Your current balance: " + currentBalance + "$");
@@ -47,11 +36,7 @@ public class BankOperation {
     }
 
     public static double balance(Connection connection, int user_id) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("select Coalesce(sum(case when action_type = 'DEPOSIT' then amount else -amount end), 0) from Action where user_id = ?");
-        ps.setInt(1, user_id);
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        return rs.getDouble(1);
+       return BankDatabase.balanceCheck(connection,user_id);
 
     }
 }

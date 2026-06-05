@@ -4,7 +4,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
 
         try (Connection connection = DatabaseConnection.getConnection()) {
 
@@ -62,27 +62,10 @@ public class Main {
                         }
                         // lets put new user info into database
 
-                        PreparedStatement ps = connection.prepareStatement("Insert into users(name,surname,card_type) values (?,?,?::acc_enum)");
-
-                        ps.setString(1, name);
-                        ps.setString(2, surname);
-                        ps.setString(3, cardType);
-                        int rs = ps.executeUpdate();
-                        if (rs == 1) {
-                            System.out.println("Registration was succeed ✅");
-                        } else {
-                            System.out.println("Registration failed.❌ Please try again.");
-                        }
-
-                        PreparedStatement getId = connection.prepareStatement("Select user_id from users where name = ? and surname = ? ORDER BY user_id DESC LIMIT 1");
-                        getId.setString(1, name);
-                        getId.setString(2, surname);
-                        ResultSet rs4 = getId.executeQuery();
-                        rs4.next();
-                        int new_id = rs4.getInt("user_id");
+                        BankDatabase.insertingNewIDToDatabase(connection,name,surname,cardType);
+                        int new_id = BankDatabase.getId(connection,name,surname);
 
 
-                        System.out.println("▫️️You get new ID : <" + new_id + "> Please DO NOT show anybody ❗");
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
                         System.out.println("1: DEPOSIT");
