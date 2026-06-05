@@ -94,7 +94,7 @@ public class Main {
                                     System.out.println("▫️You picked 'DEPOSIT' section");
                                     System.out.println("▫️How much money you want to deposit ?");
                                     double deposit = scanner.nextDouble();
-                                    Deposit(scanner, connection, new_id, deposit);
+                                    BankOperation.deposit(scanner, connection, new_id, deposit);
                                     System.out.println("Process is finished ");
                                 } catch (InputMismatchException e) {
                                     scanner.next();
@@ -115,7 +115,7 @@ public class Main {
                         System.out.println("You picked LOG IN section");
                         System.out.println("▫️Enter your User ID number :");
                         int id_number = scanner.nextInt();
-                        double currentBalance = balance(connection, id_number);
+                        double currentBalance = BankOperation.balance(connection,id_number);
                         System.out.println("💳 Your current balance: " + currentBalance + "$");
                         System.out.println("➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿➿");
                         System.out.println("▫️Choose the next operation");
@@ -129,7 +129,7 @@ public class Main {
                                     System.out.println("▫️You picked 'DEPOSIT' section");
                                     System.out.println("▫️How much money you want to deposit ?");
                                     double deposit2 = scanner.nextDouble();
-                                    Deposit(scanner, connection, id_number, deposit2);
+                                    BankOperation.deposit(scanner, connection, id_number, deposit2);
                                     System.out.println(" Process is finished ");
                                 } catch (InputMismatchException e) {
                                     scanner.next();
@@ -142,7 +142,7 @@ public class Main {
                                     System.out.println("▫️You picked 'WITHDRAW' section");
                                     System.out.println("▫️How much money you want to withdraw ?");
                                     double withdrawAmount = scanner.nextDouble();
-                                    withdraw(scanner, connection, id_number, withdrawAmount);
+                                    BankOperation.withdraw(scanner, connection, id_number, withdrawAmount);
                                 } catch (InputMismatchException e) {
                                     scanner.next();
                                     System.out.println("Wrong Input!");
@@ -154,7 +154,7 @@ public class Main {
                     case 3:
                         System.out.println("▫️Enter your User ID number :");
                         int id_number2 = scanner.nextInt();
-                        double result = balance(connection, id_number2);
+                        double result = BankOperation.balance(connection,id_number2);
                         System.out.println(result);
                         break;
 
@@ -172,54 +172,6 @@ public class Main {
         } catch (SQLException e) {
             System.out.println("Connection Failed : " + e.getMessage());
         }
-    }
-
-    public static void Deposit(Scanner scanner, Connection connection, int user_new_id, Double deposit) throws SQLException {
-        if (deposit > 0) {
-            System.out.println("The transaction fee will be 2$ for national card. You want to continue?");
-            System.out.println("1: YES\n2: NO ");
-            int select = scanner.nextInt();
-            switch (select) {
-                case 1:
-                    PreparedStatement depositing = connection.prepareCall("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
-                    depositing.setInt(1, user_new_id);
-                    depositing.setString(2, "DEPOSIT");
-                    depositing.setDouble(3, deposit);
-                    depositing.executeUpdate();
-                    System.out.println("You deposited " + deposit + "$ to your card");
-                    double currentBalance = balance(connection, user_new_id);
-                    System.out.println("💳 Your current balance: " + currentBalance + "$");
-                    break;
-            }
-        } else {
-            System.out.println("Deposited money cannot be NEGATIVE");
-        }
-    }
-
-    public static void withdraw(Scanner scanner, Connection connection, int user_id, Double withdraw) throws SQLException {
-
-        double balance = balance(connection, user_id);
-        if (withdraw > 0 && withdraw <= balance) {
-            PreparedStatement withdrawing = connection.prepareStatement("INSERT INTO Action(user_id,action_type, amount) values (?,? ::action_type_enum,?)");
-            withdrawing.setInt(1, user_id);
-            withdrawing.setString(2, "WITHDRAWAL");
-            withdrawing.setDouble(3, withdraw);
-            withdrawing.executeUpdate();
-            System.out.println("You have received " + withdraw + "$ ");
-            double currentBalance = balance(connection, user_id);
-            System.out.println("💳 Your current balance: " + currentBalance + "$");
-        } else {
-            System.out.println("Either entered balance is negative or balance is not enough !");
-        }
-    }
-
-    public static double balance(Connection connection, int user_id) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement("select Coalesce(sum(case when action_type = 'DEPOSIT' then amount else -amount end), 0) from Action where user_id = ?");
-        ps.setInt(1, user_id);
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        return rs.getDouble(1);
-
     }
 }
 
