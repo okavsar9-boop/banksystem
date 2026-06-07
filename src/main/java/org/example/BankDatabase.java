@@ -23,12 +23,12 @@ public class BankDatabase {
     }
 
 
-    public static int insertingNewIDToDatabase(Connection connection, String name, String surname, String cardType, int pin) throws SQLException {
+    public static int insertingNewIDToDatabase(Connection connection, String name, String surname, String cardType, String pin) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("Insert into users(name,surname,card_type,pin) values (?,?,?::acc_enum,?) RETURNING user_id");
         ps.setString(1, name);
         ps.setString(2, surname);
         ps.setString(3, cardType);
-        ps.setInt(4,pin);
+        ps.setString(4,pin);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             return rs.getInt("user_id");
@@ -47,10 +47,10 @@ public class BankDatabase {
         return rs.getDouble(1);
     }
 
-    public static boolean verifyPin(Connection connection, int userId, int pin) throws SQLException {
+    public static boolean verifyPin(Connection connection, int userId, String pin) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("Select pin from users where  user_id = ? and pin = ?");
         ps.setInt(1,userId);
-        ps.setInt(2,pin);
+        ps.setString(2,pin);
         ResultSet rs = ps.executeQuery();
         return  rs.next();
     }
