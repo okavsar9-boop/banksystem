@@ -12,15 +12,24 @@ public class Bank {
 
     private Connection connection;
 
-    public Bank(Connection connection) {
+    public Bank(Connection connection){
         this.connection = connection;
     }
 
+
     public void register(String name, String surname, LocalDate dob, String passportId, String pin, Double balance, String cardType) throws SQLException {
+        if (!passportId.matches("[A-Z]{2}\\d{7}")) {
+            throw new IllegalArgumentException("Enter valid Passport ID . ID must include 2 letters in the beginning and 7 digits after !");
+        }
+        if(!pin.matches("\\d{4}")) {
+            throw new IllegalArgumentException("Enter valid Pin, It should be 4 digits !");
+        }
         User user = new User(name, surname, dob, passportId, pin, balance, cardType);
         UserRepository.insertingNewIDToDatabase(connection, user);
-    }
-
+        if (balance > 0) {
+            TransactionRepository.insertTransaction(connection, passportId, null, "DEPOSIT", balance);
+        }
+}
     public void deposit(String passportId, Double amount) throws SQLException {
         if (amount > 0) {
             TransactionRepository.insertTransaction(connection, passportId, null, "DEPOSIT", amount);
