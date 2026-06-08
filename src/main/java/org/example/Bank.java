@@ -42,6 +42,8 @@ public class Bank {
         double balance = TransactionRepository.getBalance(connection, senderPassportId);
         if (amount > 0 && amount + TRANSACTION_FEE <= balance) {
             TransactionRepository.insertTransaction(connection, senderPassportId, receiverPassportId, "TRANSFER", amount);
+            TransactionRepository.insertTransaction(connection,receiverPassportId, senderPassportId,"DEPOSIT",amount);
+
         }else{
            throw new IllegalArgumentException("Either amount is invalid or balance is not enough!");
         }
